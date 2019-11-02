@@ -8,7 +8,7 @@ class Author(models.Model):
     name = models.CharField(max_length=200)
     surname = models.CharField(max_length=200)
     thirdname = models.CharField(max_length=200, null=True, blank=True)
-
+    initials = models.CharField(max_length=200, null=True, blank=True) 
 
 class Editor(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -26,6 +26,7 @@ class Interpreter(models.Model):
 class BookType(models.Model):
     unique_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=200)
+    short_name = models.CharField(max_length=200)
 
 
 class Book(models.Model):

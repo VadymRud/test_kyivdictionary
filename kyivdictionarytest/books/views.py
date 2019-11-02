@@ -1,4 +1,5 @@
 import json
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,30 +17,11 @@ class BookList(APIView):
 
     def post(self, request, format=None):
         
-        # print(self.request.data.get('authors')[0]['unique_id'])
-
-
-        # instance = Book.objects.create(**validated_data)
-        # for author in authors:
-            
-        #     instance.authors.add(**author)
-        # if editors:
-        #     for editor in editors:
-        #         instance.editors.add(editor)
-        # if interpreters:
-        #     for interpreter in interpreters:
-        #         instance.interpreters.add(interpreter)
-    
-        # for book_type in book_types:
-        #     instance.book_types.add(book_type)
         serializer = BookSerializer(data=request.data, context={'request':request})
         
         if serializer.is_valid():
             
-            # authors = models.ManyToManyField(Author)
-            # editors = models.ManyToManyField(Editor, null=True, blank=True)
-            # interpreters = models.ManyToManyField(Interpreter, null=True, blank=True)
-            # book_types  = models.ManyToManyField(BookType)
+            
             number_pub = self.request.data.get('number_pub')
             add_info = self.request.data.get('add_info')
             pub_date = self.request.data.get('pub_date')
@@ -73,6 +55,14 @@ class BookList(APIView):
                 bt = BookType.objects.get(unique_id=book_type['unique_id'])
                 instance.book_types.add(bt)
                 # serializer.save()
-
-            return Response({'OK':'OK'}, status=status.HTTP_201_CREATED)
+            bs = BookSerializer(instance).data
+            return Response(bs, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BookSearh(APIView):
+
+    def get(self, request, string=None, format=None):
+        books = Book.objects.filter(Q(authors__name__icontains=string) | Q(authors__surname__icontains=string) | Q(authors__initials__icontains=string))
+        bs = BookSerializer(books, many=True).data
+        return Response(bs, status=status.HTTP_200_OK)
