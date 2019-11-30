@@ -1,12 +1,14 @@
 import json
 from django.db.models import Q
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.urls import reverse_lazy
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import AuthorSerializer, BookSerializer, BookTypeSerializer, EditorSerializer, InterpreterSerializer
 from .models import Author, Book, BookType, Editor, Interpreter
-
+from .forms import BookForm
 
 class BookList(APIView):
 
@@ -66,3 +68,16 @@ class BookSearh(APIView):
         books = Book.objects.filter(Q(authors__name__icontains=string) | Q(authors__surname__icontains=string) | Q(authors__initials__icontains=string))
         bs = BookSerializer(books, many=True).data
         return Response(bs, status=status.HTTP_200_OK)
+
+
+class BookCreate(CreateView):
+    model = Book
+    
+
+class BookUpdate(UpdateView):
+    model = Book
+    
+
+class BookDelete(DeleteView):
+    model = Book
+    success_url = reverse_lazy('book-list')
